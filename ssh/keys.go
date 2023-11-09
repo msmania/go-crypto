@@ -30,6 +30,7 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/ssh/internal/bcrypt_pbkdf"
+	"golang.org/x/crypto/ssh/secp256k1"
 )
 
 // Public key algorithms names. These values can appear in PublicKey.Type,
@@ -697,7 +698,8 @@ func (k ed25519PublicKey) CryptoPublicKey() crypto.PublicKey {
 }
 
 func supportedEllipticCurve(curve elliptic.Curve) bool {
-	return curve == elliptic.P256() || curve == elliptic.P384() || curve == elliptic.P521()
+	return curve == elliptic.P256() || curve == elliptic.P384() ||
+		curve == elliptic.P521() || curve == secp256k1.S256()
 }
 
 // parseECDSA parses an ECDSA key according to RFC 5656, section 3.1.

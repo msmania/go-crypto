@@ -22,6 +22,7 @@ import (
 	"strings"
 	"testing"
 
+	"golang.org/x/crypto/ssh/secp256k1"
 	"golang.org/x/crypto/ssh/testdata"
 )
 
@@ -70,6 +71,33 @@ func TestUnsupportedCurves(t *testing.T) {
 
 	if _, err = NewPublicKey(&raw.PublicKey); err == nil || !strings.Contains(err.Error(), "only P-256") {
 		t.Fatalf("NewPublicKey should not succeed with P-224, got: %v", err)
+	}
+}
+
+func TestSupportedCurves(t *testing.T) {
+	raw, err := ecdsa.GenerateKey(secp256k1.S256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("GenerateKey: %v", err)
+	}
+
+	pubKey, err := NewPublicKey(&raw.PublicKey)
+	if err != nil {
+		t.Fatalf("GenerateKey: %v", err)
+	}
+
+	signer, err := NewSignerFromKey(raw)
+	if err != nil {
+		t.Fatalf("NewSignerFromKey: %v", err)
+	}
+
+	msg := []byte("Message")
+	sig, err := signer.Sign(rand.Reader, msg)
+	if err != nil {
+		t.Fatalf("NewSignerFromKey: %v", err)
+	}
+
+	if err = pubKey.Verify(msg, sig); err != nil {
+		t.Fatalf("NewSignerFromKey: %v", err)
 	}
 }
 
